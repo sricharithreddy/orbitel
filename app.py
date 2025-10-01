@@ -11,7 +11,7 @@ from utils.analysis import (
     gender_analysis, 
     final_lead_funnel
 )
-from utils.export_utils import download_buttons, table_to_png_download
+from utils.export_utils import download_buttons, table_to_png_download, copy_table_as_image
 
 st.set_page_config(page_title="Lead Analysis Dashboard", layout="wide")
 
@@ -69,62 +69,77 @@ if uploaded_files:
 
             with tabs[0]:
                 st.subheader("Call-Level Funnel")
-                call_table = call_level_funnel(df)
+                call_table = call_level_funnel(df).reset_index(drop=True)
                 st.dataframe(call_table, use_container_width=True)
                 download_buttons(call_table, "call_level_funnel")
                 table_to_png_download(call_table, "call_level_funnel")
+                copy_table_as_image(call_table)
 
                 st.subheader("Initial Lead-Level Funnel")
-                init_table = initial_lead_funnel(df)
+                init_table = initial_lead_funnel(df).reset_index(drop=True)
                 st.dataframe(init_table, use_container_width=True)
                 download_buttons(init_table, "initial_lead_funnel")
                 table_to_png_download(init_table, "initial_lead_funnel")
+                copy_table_as_image(init_table)
 
             with tabs[1]:
                 st.subheader("Lost Leads Breakdown")
-                lost_table = lost_lead_breakdown(df)
+                lost_table = lost_lead_breakdown(df).reset_index(drop=True)
                 st.dataframe(lost_table, use_container_width=True)
                 download_buttons(lost_table, "lost_lead_breakdown")
                 table_to_png_download(lost_table, "lost_lead_breakdown")
+                copy_table_as_image(lost_table)
 
             with tabs[2]:
                 st.subheader("Deep Dive: Not Interested")
-                prof = deep_dive_profiles(df, reason="Not Interested")
+                prof = deep_dive_profiles(df, reason="Not Interested").reset_index(drop=True)
                 st.dataframe(prof, use_container_width=True)
                 download_buttons(prof, "deep_dive_not_interested")
                 table_to_png_download(prof, "deep_dive_not_interested")
+                copy_table_as_image(prof)
 
             with tabs[3]:
                 st.subheader("Deep Dive: Other Lost Reasons")
-                prof = deep_dive_profiles(df, reason="Other")
+                prof = deep_dive_profiles(df, reason="Other").reset_index(drop=True)
                 st.dataframe(prof, use_container_width=True)
                 download_buttons(prof, "deep_dive_other")
                 table_to_png_download(prof, "deep_dive_other")
+                copy_table_as_image(prof)
 
             with tabs[4]:
                 st.subheader("Time-Based Impact (Day of Week)")
                 dow, hour = time_based_impact(df)
+                dow, hour = dow.reset_index(drop=True), hour.reset_index(drop=True)
                 st.dataframe(dow, use_container_width=True)
                 st.dataframe(hour, use_container_width=True)
                 download_buttons(dow, "dow_impact")
                 download_buttons(hour, "hour_impact")
+                table_to_png_download(dow, "dow_impact")
+                table_to_png_download(hour, "hour_impact")
+                copy_table_as_image(dow)
+                copy_table_as_image(hour)
 
                 st.subheader("Call Duration")
-                dur = duration_analysis(df)
+                dur = duration_analysis(df).reset_index(drop=True)
                 st.dataframe(dur, use_container_width=True)
                 download_buttons(dur, "duration_analysis")
+                table_to_png_download(dur, "duration_analysis")
+                copy_table_as_image(dur)
 
                 st.subheader("Gender Impact")
-                gen = gender_analysis(df)
+                gen = gender_analysis(df).reset_index(drop=True)
                 st.dataframe(gen, use_container_width=True)
                 download_buttons(gen, "gender_analysis")
+                table_to_png_download(gen, "gender_analysis")
+                copy_table_as_image(gen)
 
             with tabs[5]:
                 st.subheader("Final Lead Funnel (User Logic)")
-                final_table = final_lead_funnel(df)
+                final_table = final_lead_funnel(df).reset_index(drop=True)
                 st.dataframe(final_table, use_container_width=True)
                 download_buttons(final_table, "final_lead_funnel")
                 table_to_png_download(final_table, "final_lead_funnel")
+                copy_table_as_image(final_table)
 
             with tabs[6]:
                 st.subheader("Strategic Recommendations")
