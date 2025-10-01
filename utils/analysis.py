@@ -18,7 +18,7 @@ def call_level_funnel(df: pd.DataFrame):
     })
 
 # -----------------------
-# Initial Lead-Level Funnel
+# Initial Lead-Level Funnel (with Follow-Up Conversations)
 # -----------------------
 def initial_status(group):
     outs = set(group["outcome_norm"])
@@ -35,10 +35,45 @@ def initial_lead_funnel(df: pd.DataFrame):
     counts.columns = ["Lead Status", "Count"]
     total = len(leads)
     counts["% of Unique Leads"] = counts["Count"].apply(lambda x: f"{round(x/total*100,2)}%")
+
+    # --- NEW: Conversations inside Follow-Up (based on notes) ---
+    followup_leads = leads[leads == "follow-up"].index
+    followup_df = df[df["mobile_number"].isin(followup_leads)]
+
+    non_substantial_keywords = [
+        "no response", 
+        "did not respond", 
+        "without conversation", 
+        "without substantial conversation", 
+        "call ended abruptly", 
+        "not available", 
+        "did not provide", 
+        "no interest indicated"
+    ]
+
+    def has_genuine_conversation(group):
+        notes = group.loc[group["outcome_norm"]=="follow-up","notes"].dropna().astype(str).str.lower()
+        if notes.empty:
+            return False
+        # genuine if at least one note does NOT contain any non-substantial keyword
+        for n in notes:
+            if not any(kw in n for kw in non_substantial_keywords):
+                return True
+        return False
+
+    followup_conversations = followup_df.groupby("mobile_number").apply(has_genuine_conversation)
+    conversation_count = followup_conversations.sum()
+
+    # Add Conversations column
+    counts["Conversations"] = ""
+    if "follow-up" in counts["Lead Status"].values:
+        counts.loc[counts["Lead Status"]=="follow-up","Conversations"] = f"{conversation_count}"
+
     counts = pd.concat([pd.DataFrame({
         "Lead Status": ["Unique Leads"],
         "Count": [total],
-        "% of Unique Leads": ["100%"]
+        "% of Unique Leads": ["100%"],
+        "Conversations": [""]
     }), counts])
     return counts
 
